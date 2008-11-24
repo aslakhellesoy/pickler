@@ -39,10 +39,12 @@ class Pickler
       pickler.push(*argv)
     when 'pull'
       pickler.pull(*argv)
+    when 'start'
+      pickler.start(argv.first)
     when 'finish'
       pickler.finish(argv.first)
     when 'help', '--help', '-h', '', nil
-      puts 'pickler commands: show <id>, search <query>, push, pull, finish <id>'
+      puts 'pickler commands: [show|start|finish] <id>, search <query>, push, pull'
     else
       $stderr.puts "pickler: unknown command #{first}"
       exit 1
@@ -122,6 +124,8 @@ class Pickler
   def feature(string)
     if string =~ /^(\d+)$/ || string =~ %r{^http://www\.pivotaltracker\.com/\S*/(\d+)}
       local_features.select {|f| f.story_id.to_s == string}
+    elsif !string
+      raise Error, "No feature given"
     else
       paths = [features_path("#{string}.feature"),features_path(string),string]
       path = paths.detect {|p| File.exist?(p)}
@@ -153,6 +157,14 @@ class Pickler
       File.open(filename,'w') {|f| f.puts body}
     end
     nil
+  end
+
+  def start(*args)
+    args.each do |arg|
+      story = story(arg)
+      story.transition!("started") if story.current_state == "unstarted"
+    end
+    pull(*args)
   end
 
   def push(*args)
