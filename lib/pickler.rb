@@ -120,7 +120,7 @@ class Pickler
   end
 
   def feature(string)
-    if string =~ /^(\d+)$/ || string =~ %r{^http://www.pivotaltracker.com/\S*/(\d+)}
+    if string =~ /^(\d+)$/ || string =~ %r{^http://www\.pivotaltracker\.com/\S*/(\d+)}
       local_features.select {|f| f.story_id.to_s == string}
     else
       paths = [features_path("#{string}.feature"),features_path(string),string]
@@ -130,7 +130,7 @@ class Pickler
   end
 
   def story(string)
-    if string =~ /^(\d+)$/ || string =~ %r{^http://www.pivotaltracker.com/\S*/(\d+)}
+    if string =~ /^(\d+)$/ || string =~ %r{^http://www\.pivotaltracker\.com/\S*/(\d+)}
       project.story($1)
     else
       feature(string).story
